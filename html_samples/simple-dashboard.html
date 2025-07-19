@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NBG Business Insights Dashboard</title>
+  
+  <!-- Include Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background-color: #f9fafb;
+    }
+    
+    .chart-container {
+      height: 350px;
+      margin-bottom: 1rem;
+      background-color: #007B85;
+      border-radius: 0.5rem;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    
+    .heatmap-cell {
+      width: 2rem;
+      height: 2rem;
+      margin: 2px;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      border: 1px solid #e5e7eb;
+    }
+    
+    .high {
+      background-color: #73AA3C;
+      color: white;
+    }
+    
+    .medium {
+      background-color: #F5F8F6;
+      color: #1f2937;
+    }
+    
+    .low {
+      background-color: #A0052D;
+      color: white;
+    }
+    
+    .future {
+      background-color: #f0f0f0;
+      color: #9ca3af;
+    }
+    
+    .empty {
+      background-color: transparent;
+      border: none;
+    }
+    
+    .stat-card {
+      background-color: white;
+      border-radius: 0.5rem;
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border: 1px solid #e5e7eb;
+    }
+    
+    .icon-circle {
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 0.75rem;
+    }
+    
+    .section-card {
+      background-color: white;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border: 1px solid #e5e7eb;
+    }
+    
+    .section-header {
+      padding: 1rem;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .section-content {
+      padding: 1rem;
+    }
+    
+    .map-container {
+      height: 350px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .map-svg {
+      max-height: 100%;
+      width: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="flex flex-col min-h-screen">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-10">
+      <div class="container mx-auto px-4 py-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="mr-2">
+              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="40" height="40" rx="20" fill="#007B85" />
+                <path d="M12 20C12 15.5817 15.5817 12 20 12C24.4183 12 28 15.5817 28 20C28 24.4183 24.4183 28 20 28C15.5817 28 12 24.4183 12 20Z" fill="#00DEF8" />
+              </svg>
+            </div>
+            <h1 class="text-xl font-bold text-gray-800">NBG Business Insights</h1>
+          </div>
+          <div class="flex items-center">
+            <button class="p-2 text-gray-500 hover:text-gray-700">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            </button>
+            <div class="ml-4 flex items-center">
+              <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-medium">
+                RW
+              </div>
+              <span class="ml-2 text-sm font-medium text-gray-700">Random Walk</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+      <!-- Dashboard Heading -->
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Καλώς ήρθατε στο Business Insights Dashboard</h2>
+        <p class="text-gray-600">Εδώ θα βρείτε αναλυτικά στοιχεία για τον τζίρο σας και τη συμπεριφορά των πελατών σας</p>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="grid grid-cols-1 gap-4 mb-8">
+        <!-- Metric Pair 1: Turnover -->
+        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+          <h3 class="text-base font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">Τζίρος Μαϊου έως χθες</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Compared to Last Year -->
+            <div class="flex items-start w-full">
+              <div class="icon-circle bg-blue-50 mt-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500 lucide lucide-shopping-bag"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              </div>
+              <div class="ml-3 flex-grow">
+                <p class="text-sm font-medium text-gray-700">Σε σχέση με πέρυσι</p>
+                <div class="flex items-center">
+                  <h3 class="text-2xl font-bold">+8.2%</h3>
+                  <!-- Good performance indicator -->
+                  <div class="rounded-full bg-green-100 p-1.5 ml-2" title="Αύξηση από πέρυσι">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600">
+                      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                      <polyline points="16 7 22 7 22 13"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Compared to Competitors -->
+            <div class="flex items-start w-full">
+              <div class="icon-circle bg-indigo-50 mt-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-500 lucide lucide-shopping-bag"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+              </div>
+              <div class="ml-3 flex-grow">
+                <p class="text-sm font-medium text-gray-700">Σε σχέση με ανταγωνισμό</p>
+                <div class="flex items-center">
+                  <h3 class="text-2xl font-bold">+3.7%</h3>
+                  <div class="rounded-full bg-green-100 p-1.5 ml-2" title="Καλύτερη απόδοση από ανταγωνισμό">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600">
+                      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                      <polyline points="16 7 22 7 22 13"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="flex items-center text-sm">
+                  <span class="text-gray-600">Μεταβολή ανταγωνισμού: <span class="font-medium">+4.5%</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metric Pair 2: Transactions -->
+        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+          <h3 class="text-base font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">Συναλλαγές Μαϊου έως χθες</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Compared to Last Year -->
+            <div class="flex items-start w-full">
+              <div class="icon-circle bg-green-50 mt-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500 lucide lucide-activity"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </div>
+              <div class="ml-3 flex-grow">
+                <p class="text-sm font-medium text-gray-700">Σε σχέση με πέρυσι</p>
+                <div class="flex items-center">
+                  <h3 class="text-2xl font-bold">+12.5%</h3>
+                  <!-- Good performance indicator -->
+                  <div class="rounded-full bg-green-100 p-1.5 ml-2" title="Σημαντική αύξηση από πέρυσι">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600">
+                      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                      <polyline points="16 7 22 7 22 13"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Compared to Competitors -->
+            <div class="flex items-start w-full">
+              <div class="icon-circle bg-teal-50 mt-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-teal-500 lucide lucide-activity"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </div>
+              <div class="ml-3 flex-grow">
+                <p class="text-sm font-medium text-gray-700">Σε σχέση με ανταγωνισμό</p>
+                <div class="flex items-center">
+                  <h3 class="text-2xl font-bold">+6.7%</h3>
+                  <div class="rounded-full bg-green-100 p-1.5 ml-2" title="Καλύτερη απόδοση από ανταγωνισμό">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600">
+                      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                      <polyline points="16 7 22 7 22 13"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="flex items-center text-sm">
+                  <span class="text-gray-600">Μεταβολή ανταγωνισμού: <span class="font-medium">+5.8%</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metric Pair 3: Average Transaction -->
+        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+          <h3 class="text-base font-semibold text-gray-700 mb-3 pb-2 border-b border-gray-100">Μέση Συναλλαγή</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Compared to Last Year -->
+            <div class="flex items-start w-full">
+              <div class="icon-circle bg-purple-50 mt-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-500 lucide lucide-pie-chart"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+              </div>
+              <div class="ml-3 flex-grow">
+                <p class="text-sm font-medium text-gray-700">Σε σχέση με πέρυσι</p>
+                <div class="flex items-center">
+                  <h3 class="text-2xl font-bold">+2.1%</h3>
+                  <!-- Good performance indicator -->
+                  <div class="rounded-full bg-green-100 p-1.5 ml-2" title="Αύξηση από πέρυσι">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-600">
+                      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/>
+                      <polyline points="16 7 22 7 22 13"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="flex items-center text-sm">
+                  <span class="text-gray-600">Σε εμένα: <span class="font-medium">€43.62</span></span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Compared to Competitors -->
+            <div class="flex items-start w-full">
+              <div class="icon-circle bg-yellow-50 mt-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-yellow-500 lucide lucide-pie-chart"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+              </div>
+              <div class="ml-3 flex-grow">
+                <p class="text-sm font-medium text-gray-700">Σε σχέση με ανταγωνισμό</p>
+                <div class="flex items-center">
+                  <h3 class="text-2xl font-bold">-4.0%</h3>
+                  <div class="rounded-full bg-red-100 p-1.5 ml-2" title="Χαμηλότερη από ανταγωνισμό">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500">
+                      <polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/>
+                      <polyline points="16 17 22 17 22 11"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="flex items-center text-sm">
+                  <span class="text-gray-600">Στην αγορά: <span class="font-medium">€45.44</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dashboard Sections -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Weekly Turnover Section -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500 mr-2 lucide lucide-calendar"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+              <h3 class="font-bold text-gray-800">Μεταβολή τζίρου % από πέρυσι</h3>
+            </div>
+            <button class="text-gray-400 hover:text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+          </div>
+          <div class="section-content">
+            <div class="bg-white p-4 rounded-lg border border-gray-200" style="height: 450px">
+              <svg id="weekly-chart" width="100%" height="100%" viewBox="0 0 800 400">
+                <!-- White background -->
+                <rect x="0" y="0" width="800" height="400" fill="#FFFFFF" />
+                
+                <!-- SVG Area Chart representation with different gradients for positive/negative -->
+                <defs>
+                  <linearGradient id="positive-area-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#73AA3C" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="#73AA3C" stop-opacity="0.05"/>
+                  </linearGradient>
+                  <linearGradient id="negative-area-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#A0052D" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="#A0052D" stop-opacity="0.05"/>
+                  </linearGradient>
+                </defs>
+                
+                <!-- Axes -->
+                <line x1="75" y1="200" x2="750" y2="200" stroke="#666" stroke-width="1.5" />
+                <line x1="75" y1="350" x2="75" y2="50" stroke="#666" stroke-width="1.5" />
+                
+                <!-- Y-axis labels -->
+                <text x="70" y="50" text-anchor="end" font-size="12" fill="#666" font-weight="500">+15%</text>
+                <text x="70" y="100" text-anchor="end" font-size="12" fill="#666" font-weight="500">+10%</text>
+                <text x="70" y="150" text-anchor="end" font-size="12" fill="#666" font-weight="500">+5%</text>
+                <text x="70" y="200" text-anchor="end" font-size="12" fill="#666" font-weight="500">0%</text>
+                <text x="70" y="250" text-anchor="end" font-size="12" fill="#666" font-weight="500">-5%</text>
+                <text x="70" y="300" text-anchor="end" font-size="12" fill="#666" font-weight="500">-10%</text>
+                <text x="70" y="350" text-anchor="end" font-size="12" fill="#666" font-weight="500">-15%</text>
+                
+                <!-- Horizontal grid lines -->
+                <line x1="75" y1="50" x2="750" y2="50" stroke="#EEE" stroke-width="1" />
+                <line x1="75" y1="100" x2="750" y2="100" stroke="#EEE" stroke-width="1" />
+                <line x1="75" y1="150" x2="750" y2="150" stroke="#EEE" stroke-width="1" />
+                <line x1="75" y1="200" x2="750" y2="200" stroke="#EEE" stroke-width="1" stroke-dasharray="4,2" />
+                <line x1="75" y1="250" x2="750" y2="250" stroke="#EEE" stroke-width="1" />
+                <line x1="75" y1="300" x2="750" y2="300" stroke="#EEE" stroke-width="1" />
+                
+                <!-- Week markers - showing 13 major ticks (quarterly) -->
+                <line x1="100" y1="198" x2="100" y2="202" stroke="#666" stroke-width="1.5" />
+                <line x1="150" y1="198" x2="150" y2="202" stroke="#666" stroke-width="1.5" />
+                <line x1="200" y1="198" x2="200" y2="202" stroke="#666" stroke-width="1.5" />
+                <line x1="250" y1="198" x2="250" y2="202" stroke="#666" stroke-width="1.5" />
+                <line x1="300" y1="198" x2="300" y2="202" stroke="#666" stroke-width="1.5" />
+                <line x1="350" y1="198" x2="350" y2="202" stroke="#666" stroke-width="1.5" />
+                <line x1="400" y1="198" x2="400" y2="202" stroke="#666" stroke-width="1.5" />
+                <line x1="450" y1="198" x2="450" y2="202" stroke="#666" stroke-width="1.5" />
+                <line x1="500" y1="198" x2="500" y2="202" stroke="#666" stroke-width="1.5" />
+                <line x1="550" y1="198" x2="550" y2="202" stroke="#666" stroke-width="1.5" />
+                <line x1="600" y1="198" x2="600" y2="202" stroke="#666" stroke-width="1.5" />
+                <line x1="650" y1="198" x2="650" y2="202" stroke="#666" stroke-width="1.5" />
+                <line x1="700" y1="198" x2="700" y2="202" stroke="#666" stroke-width="1.5" />
+                
+                <!-- Month labels for x-axis -->
+                <text x="100" y="370" text-anchor="middle" font-size="13" fill="#666">Μάιος '24</text>
+                <text x="250" y="370" text-anchor="middle" font-size="13" fill="#666">Αύγουστος '24</text>
+                <text x="400" y="370" text-anchor="middle" font-size="13" fill="#666">Νοέμβριος '24</text>
+                <text x="550" y="370" text-anchor="middle" font-size="13" fill="#666">Φεβρουάριος '25</text>
+                <text x="700" y="370" text-anchor="middle" font-size="13" fill="#666">Μάιος '25</text>
+                
+                <!-- X-axis label -->
+                <text x="400" y="400" text-anchor="middle" font-size="14" fill="#666" font-weight="bold">Μήνες</text>
+                
+                <!-- Vertical grid lines (every 4 weeks) -->
+                <line x1="100" y1="50" x2="100" y2="350" stroke="#EEE" stroke-width="1" />
+                <line x1="150" y1="50" x2="150" y2="350" stroke="#EEE" stroke-width="1" />
+                <line x1="200" y1="50" x2="200" y2="350" stroke="#EEE" stroke-width="1" />
+                <line x1="250" y1="50" x2="250" y2="350" stroke="#EEE" stroke-width="1" />
+                <line x1="300" y1="50" x2="300" y2="350" stroke="#EEE" stroke-width="1" />
+                <line x1="350" y1="50" x2="350" y2="350" stroke="#EEE" stroke-width="1" />
+                <line x1="400" y1="50" x2="400" y2="350" stroke="#EEE" stroke-width="1" />
+                <line x1="450" y1="50" x2="450" y2="350" stroke="#EEE" stroke-width="1" />
+                <line x1="500" y1="50" x2="500" y2="350" stroke="#EEE" stroke-width="1" />
+                <line x1="550" y1="50" x2="550" y2="350" stroke="#EEE" stroke-width="1" />
+                <line x1="600" y1="50" x2="600" y2="350" stroke="#EEE" stroke-width="1" />
+                <line x1="650" y1="50" x2="650" y2="350" stroke="#EEE" stroke-width="1" />
+                <line x1="700" y1="50" x2="700" y2="350" stroke="#EEE" stroke-width="1" />
+                
+                <!-- Positive area (above zero line) -->
+                <path d="M100,160 L112,155 L124,150 L136,145 
+                      L148,140 L160,135 L172,130 L184,125 
+                      L196,120 L208,115 L220,110 L232,120 
+                      L244,130 L256,135 L268,140 L280,145 
+                      L292,160 L304,200 L316,200 L328,200 
+                      L340,200 L352,200 L364,200 L376,200 
+                      L388,200 L400,200 L412,200 L424,200
+                      L436,200 L448,200 L460,200 L472,200
+                      L484,200 L496,200 L508,200 L520,200
+                      L532,130 L544,140 L556,145 L568,150 
+                      L580,155 L592,160 L604,170 L616,180 
+                      L628,170 L640,160 L652,165 L664,170 
+                      L676,165 L688,160 L700,155 L700,200 
+                      L100,200 Z" 
+                      fill="url(#positive-area-gradient)" />
+                
+                <!-- Negative area (below zero line) -->
+                <path d="M292,200 L304,230 L316,235 L328,225 
+                      L340,215 L352,220 L364,230 L376,240 
+                      L388,245 L400,255 L412,260 L424,270 
+                      L436,240 L448,230 L460,220 L472,230 
+                      L484,240 L496,230 L508,220 L520,205
+                      L532,200 L532,200 L520,200 L508,200 
+                      L496,200 L484,200 L472,200 L460,200 
+                      L448,200 L436,200 L424,200 L412,200 
+                      L400,200 L388,200 L376,200 L364,200 
+                      L352,200 L340,200 L328,200 L316,200 
+                      L304,200 L292,200 Z" 
+                      fill="url(#negative-area-gradient)" />
+                      
+                <!-- Data line for the 52 weeks - with percentage changes from same week last year -->
+                <path d="M100,160 L112,155 L124,150 L136,145 
+                      L148,140 L160,135 L172,130 L184,125 
+                      L196,120 L208,115 L220,110 L232,120 
+                      L244,130 L256,135 L268,140 L280,145 
+                      L292,160 L304,230 L316,235 L328,225 
+                      L340,215 L352,220 L364,230 L376,240 
+                      L388,245 L400,255 L412,260 L424,270 
+                      L436,240 L448,230 L460,220 L472,230 
+                      L484,240 L496,230 L508,220 L520,205 
+                      L532,130 L544,140 L556,145 L568,150 
+                      L580,155 L592,160 L604,170 L616,180 
+                      L628,170 L640,160 L652,165 L664,170 
+                      L676,165 L688,160 L700,155" 
+                      fill="none" stroke="#007B85" stroke-width="3" />
+              </svg>
+            </div>
+            <div class="mt-4 text-sm text-gray-500">
+              <p>Το γράφημα δείχνει το ποσοστό μεταβολής του τζίρου σε σχέση με την αντίστοιχη εβδομάδα του προηγούμενου έτους. Παρατηρείται <span class="font-medium text-green-500">θετική τάση (+5% έως +15%)</span> τους περισσότερους μήνες, με αρνητικές επιδόσεις κυρίως τον <span class="font-medium text-red-500">Οκτώβριο-Δεκέμβριο (-5% έως -10%)</span>.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly Turnover Heatmap -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-green-500 mr-2 lucide lucide-calendar"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+              <h3 class="font-bold text-gray-800">Ημερολόγιο Τζίρου</h3>
+            </div>
+            <button class="text-gray-400 hover:text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+          </div>
+          <div class="section-content">
+            <div class="mb-4">
+              <div class="text-sm font-medium text-gray-500 mb-2 w-full text-center">Μάιος 2025</div>
+              <div class="flex flex-col items-center">
+                <div class="grid grid-cols-7 gap-0.5 mb-1">
+                  <!-- Calendar Header -->
+                  <div class="heatmap-cell empty">Κυρ</div>
+                  <div class="heatmap-cell empty">Δευ</div>
+                  <div class="heatmap-cell empty">Τρι</div>
+                  <div class="heatmap-cell empty">Τετ</div>
+                  <div class="heatmap-cell empty">Πεμ</div>
+                  <div class="heatmap-cell empty">Παρ</div>
+                  <div class="heatmap-cell empty">Σαβ</div>
+                </div>
+                
+                <div class="grid grid-cols-7 gap-0.5">
+                  <!-- Week 1 -->
+                  <div class="heatmap-cell empty"></div>
+                  <div class="heatmap-cell empty"></div>
+                  <div class="heatmap-cell empty"></div>
+                  <div class="heatmap-cell empty"></div>
+                  <div class="heatmap-cell medium">1</div>
+                  <div class="heatmap-cell high">2</div>
+                  <div class="heatmap-cell high">3</div>
+                  
+                  <!-- Week 2 -->
+                  <div class="heatmap-cell low">4</div>
+                  <div class="heatmap-cell medium">5</div>
+                  <div class="heatmap-cell medium">6</div>
+                  <div class="heatmap-cell low">7</div>
+                  <div class="heatmap-cell medium">8</div>
+                  <div class="heatmap-cell high">9</div>
+                  <div class="heatmap-cell high">10</div>
+                  
+                  <!-- Week 3 -->
+                  <div class="heatmap-cell low">11</div>
+                  <div class="heatmap-cell medium">12</div>
+                  <div class="heatmap-cell medium">13</div>
+                  <div class="heatmap-cell medium">14</div>
+                  <div class="heatmap-cell future">15</div>
+                  <div class="heatmap-cell future">16</div>
+                  <div class="heatmap-cell future">17</div>
+                  
+                  <!-- Week 4 -->
+                  <div class="heatmap-cell future">18</div>
+                  <div class="heatmap-cell future">19</div>
+                  <div class="heatmap-cell future">20</div>
+                  <div class="heatmap-cell future">21</div>
+                  <div class="heatmap-cell future">22</div>
+                  <div class="heatmap-cell future">23</div>
+                  <div class="heatmap-cell future">24</div>
+                  
+                  <!-- Week 5 -->
+                  <div class="heatmap-cell future">25</div>
+                  <div class="heatmap-cell future">26</div>
+                  <div class="heatmap-cell future">27</div>
+                  <div class="heatmap-cell future">28</div>
+                  <div class="heatmap-cell future">29</div>
+                  <div class="heatmap-cell future">30</div>
+                  <div class="heatmap-cell future">31</div>
+                </div>
+              </div>
+            </div>
+            <div class="flex justify-between items-center text-xs text-gray-500 mt-4">
+              <div class="flex items-center">
+                <div class="w-3 h-3 rounded-sm mr-1" style="background-color: #A0052D"></div>
+                <span>Χαμηλός</span>
+              </div>
+              <div class="flex items-center">
+                <div class="w-3 h-3 rounded-sm mr-1" style="background-color: #F5F8F6"></div>
+                <span>Μέτριος</span>
+              </div>
+              <div class="flex items-center">
+                <div class="w-3 h-3 rounded-sm mr-1" style="background-color: #73AA3C"></div>
+                <span>Υψηλός</span>
+              </div>
+            </div>
+            <div class="mt-4 text-sm text-gray-500">
+              <p>Οι <span class="font-medium text-green-500">Παρασκευές και Σάββατα</span> είναι οι ημέρες με τον υψηλότερο τζίρο.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Geographic Performance -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-500 mr-2 lucide lucide-map"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg>
+              <h3 class="font-bold text-gray-800">Γεωγραφική Κατανομή Τζίρου</h3>
+            </div>
+            <button class="text-gray-400 hover:text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+          </div>
+          <div class="section-content">
+            <div class="bg-white p-4 rounded-lg border border-gray-200" style="height: 400px;">
+              <svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" class="max-h-full max-w-full">
+                <!-- More accurate Greece map with improved regions -->
+                <g transform="translate(100, 80) scale(1.2)">
+                  <!-- Thrace -->
+                  <path d="M478,58 L498,52 L518,48 L535,53 L545,44 L554,40 L558,50 L550,60 L538,67 L525,71 L511,74 L500,78 L490,70 L478,68 L478,58 Z" 
+                    fill="#73AA3C" stroke="#ffffff" stroke-width="2"/>
+                  <text x="520" y="60" font-size="10" fill="#ffffff" text-anchor="middle" font-weight="bold">ΘΡΑΚΗ</text>
+                  
+                  <!-- Macedonia -->
+                  <path d="M384,58 L404,52 L424,48 L444,50 L460,54 L478,58 L478,68 L476,80 L466,93 L445,102 L424,108 L403,110 L382,117 L365,113 L350,104 L339,90 L335,76 L342,65 L356,59 L370,57 L384,58 Z" 
+                    fill="#73AA3C" stroke="#ffffff" stroke-width="2"/>
+                  <text x="425" y="85" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="bold">ΜΑΚΕΔΟΝΙΑ</text>
+
+                  <!-- Epirus -->
+                  <path d="M322,95 L338,90 L350,104 L365,113 L368,125 L362,138 L350,150 L338,156 L325,159 L312,162 L300,158 L290,150 L282,138 L280,125 L285,110 L295,100 L310,95 L322,95 Z" 
+                    fill="#F5F8F6" stroke="#ffffff" stroke-width="2"/>
+                  <text x="325" y="135" font-size="11" fill="#333333" text-anchor="middle" font-weight="bold">ΗΠΕΙΡΟΣ</text>
+
+                  <!-- Thessaly -->
+                  <path d="M368,125 L382,117 L403,110 L424,108 L440,112 L452,122 L456,136 L450,150 L438,160 L422,166 L405,168 L390,165 L375,158 L368,145 L368,125 Z" 
+                    fill="#F5F8F6" stroke="#ffffff" stroke-width="2"/>
+                  <text x="412" y="145" font-size="11" fill="#333333" text-anchor="middle" font-weight="bold">ΘΕΣΣΑΛΙΑ</text>
+
+                  <!-- Central Greece -->
+                  <path d="M325,159 L350,165 L375,172 L390,175 L405,174 L422,166 L438,160 L450,165 L455,180 L450,195 L438,205 L422,210 L405,212 L390,208 L375,202 L360,198 L344,195 L328,198 L312,198 L300,196 L290,190 L285,178 L290,166 L305,160 L325,159 Z"
+                    fill="#F5F8F6" stroke="#ffffff" stroke-width="2"/>
+                  <text x="372" y="190" font-size="11" fill="#333333" text-anchor="middle" font-weight="bold">ΣΤΕΡΕΑ ΕΛΛΑΔΑ</text>
+
+                  <!-- Peloponnese (South) -->
+                  <path d="M302,213 L318,208 L332,210 L345,212 L358,215 L372,220 L382,227 L387,237 L390,250 L387,262 L375,272 L360,278 L345,280 L330,276 L318,270 L307,262 L298,250 L296,238 L298,225 L302,213 Z"
+                    fill="#73AA3C" stroke="#ffffff" stroke-width="2"/>
+                  <text x="344" y="245" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="bold">ΠΕΛΟΠΟΝΝΗΣΟΣ</text>
+
+                  <!-- Ionian Islands with more detail -->
+                  <!-- Corfu -->
+                  <path d="M270,120 L277,115 L285,118 L288,125 L285,132 L277,135 L270,132 L267,125 L270,120 Z" 
+                    fill="#F5F8F6" stroke="#ffffff" stroke-width="1.5"/>
+                  <!-- Lefkada -->
+                  <path d="M280,165 L284,162 L288,165 L288,170 L284,173 L280,170 L280,165 Z" 
+                    fill="#F5F8F6" stroke="#ffffff" stroke-width="1.5"/>
+                  <!-- Kefalonia -->
+                  <path d="M270,185 L277,182 L284,185 L286,192 L284,200 L277,203 L270,200 L268,192 L270,185 Z" 
+                    fill="#F5F8F6" stroke="#ffffff" stroke-width="1.5"/>
+                  <!-- Zakynthos -->
+                  <path d="M275,222 L280,220 L285,222 L287,227 L285,232 L280,234 L275,232 L273,227 L275,222 Z" 
+                    fill="#F5F8F6" stroke="#ffffff" stroke-width="1.5"/>
+                  <text x="250" y="155" font-size="10" fill="#333333" text-anchor="middle">ΙΟΝΙΑ ΝΗΣΙΑ</text>
+
+                  <!-- Aegean Islands with more detail -->
+                  <!-- Northern Aegean -->
+                  <path d="M485,110 L490,108 L495,110 L495,115 L490,117 L485,115 L485,110 Z" 
+                    fill="#A0052D" stroke="#ffffff" stroke-width="1.5"/>
+                  <!-- Lesvos -->
+                  <path d="M510,90 L518,87 L526,90 L528,97 L526,104 L518,107 L510,104 L508,97 L510,90 Z" 
+                    fill="#A0052D" stroke="#ffffff" stroke-width="1.5"/>
+                  <!-- Chios -->
+                  <path d="M515,130 L519,128 L523,130 L524,134 L523,138 L519,140 L515,138 L514,134 L515,130 Z" 
+                    fill="#A0052D" stroke="#ffffff" stroke-width="1.5"/>
+                  <!-- Cyclades -->
+                  <path d="M455,180 L465,176 L475,180 L478,190 L475,200 L465,204 L455,200 L452,190 L455,180 Z" 
+                    fill="#A0052D" stroke="#ffffff" stroke-width="1.5"/>
+                  <!-- Dodecanese -->
+                  <path d="M490,210 L496,208 L502,210 L504,215 L502,220 L496,222 L490,220 L488,215 L490,210 Z" 
+                    fill="#A0052D" stroke="#ffffff" stroke-width="1.5"/>
+                  <!-- Rhodes -->
+                  <path d="M510,240 L515,238 L520,240 L521,245 L520,250 L515,252 L510,250 L509,245 L510,240 Z" 
+                    fill="#A0052D" stroke="#ffffff" stroke-width="1.5"/>
+                  <text x="490" y="165" font-size="10" fill="#333333" text-anchor="middle">ΝΗΣΙΑ ΑΙΓΑΙΟΥ</text>
+
+                  <!-- Crete with more detail -->
+                  <path d="M340,290 L360,286 L380,283 L400,282 L420,283 L440,286 L460,290 L475,295 L460,300 L440,304 L420,305 L400,304 L380,305 L360,304 L340,300 L325,295 L340,290 Z"
+                    fill="#A0052D" stroke="#ffffff" stroke-width="2"/>
+                  <text x="400" y="295" font-size="11" fill="#ffffff" text-anchor="middle" font-weight="bold">ΚΡΗΤΗ</text>
+
+                  <!-- Legend moved to bottom -->
+                  <g transform="translate(260, 360)">
+                    <rect x="0" y="0" width="18" height="18" fill="#73AA3C" stroke="#ffffff" stroke-width="0.5"/>
+                    <text x="25" y="13" font-size="10" fill="#333333">Υψηλός τζίρος</text>
+                    
+                    <rect x="100" y="0" width="18" height="18" fill="#F5F8F6" stroke="#ffffff" stroke-width="0.5"/>
+                    <text x="125" y="13" font-size="10" fill="#333333">Μέτριος τζίρος</text>
+                    
+                    <rect x="200" y="0" width="18" height="18" fill="#A0052D" stroke="#ffffff" stroke-width="0.5"/>
+                    <text x="225" y="13" font-size="10" fill="#333333">Χαμηλός τζίρος</text>
+                  </g>
+                </g>
+              </svg>
+            </div>
+            <div class="mt-4 text-sm text-gray-500">
+              <p>H <span class="font-medium text-green-500">Μακεδονία & Θράκη</span> και η <span class="font-medium text-green-500">Πελοπόννησος</span> έχουν τον υψηλότερο τζίρο αυτό το μήνα. Τα νησιά του Αιγαίου και η Κρήτη παρουσιάζουν χαμηλότερη απόδοση.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer Demographics -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-purple-500 mr-2 lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <h3 class="font-bold text-gray-800">Δημογραφικά Στοιχεία Πελατών</h3>
+            </div>
+            <button class="text-gray-400 hover:text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+          </div>
+          <div class="section-content">
+            <div class="grid grid-cols-1 gap-4 mb-4">
+              <!-- Gender Demographics Card -->
+              <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">Φύλο</h4>
+                <div>
+                  <!-- Single bar showing both genders -->
+                  <div class="w-full h-12 bg-gray-100 rounded-md overflow-hidden mb-3">
+                    <div class="flex h-full">
+                      <div class="h-full bg-blue-600" style="width: 55%"></div>
+                      <div class="h-full bg-pink-300" style="width: 45%"></div>
+                    </div>
+                  </div>
+                  
+                  <!-- Legend -->
+                  <div class="flex justify-center space-x-8 mt-4">
+                    <div class="flex items-center">
+                      <div class="w-3 h-3 bg-blue-600 rounded-sm mr-2"></div>
+                      <span class="text-sm">Άνδρες (55%)</span>
+                    </div>
+                    <div class="flex items-center">
+                      <div class="w-3 h-3 bg-pink-300 rounded-sm mr-2"></div>
+                      <span class="text-sm">Γυναίκες (45%)</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Age Demographics Card -->
+              <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">Ηλικία</h4>
+                <div>
+                  <!-- Vertical bar chart similar to interests -->
+                  <div class="flex flex-col space-y-3">
+                    <div class="flex items-center">
+                      <div class="w-24 text-sm font-medium">18-24</div>
+                      <div class="flex-1 h-6 bg-gray-100 rounded overflow-hidden">
+                        <div class="h-full bg-teal-500" style="width: 15%"></div>
+                      </div>
+                      <div class="w-12 text-sm font-medium text-right">15%</div>
+                    </div>
+                    <div class="flex items-center">
+                      <div class="w-24 text-sm font-medium">25-34</div>
+                      <div class="flex-1 h-6 bg-gray-100 rounded overflow-hidden">
+                        <div class="h-full bg-teal-500" style="width: 30%"></div>
+                      </div>
+                      <div class="w-12 text-sm font-medium text-right">30%</div>
+                    </div>
+                    <div class="flex items-center">
+                      <div class="w-24 text-sm font-medium">35-44</div>
+                      <div class="flex-1 h-6 bg-gray-100 rounded overflow-hidden">
+                        <div class="h-full bg-teal-500" style="width: 25%"></div>
+                      </div>
+                      <div class="w-12 text-sm font-medium text-right">25%</div>
+                    </div>
+                    <div class="flex items-center">
+                      <div class="w-24 text-sm font-medium">45-54</div>
+                      <div class="flex-1 h-6 bg-gray-100 rounded overflow-hidden">
+                        <div class="h-full bg-teal-500" style="width: 20%"></div>
+                      </div>
+                      <div class="w-12 text-sm font-medium text-right">20%</div>
+                    </div>
+                    <div class="flex items-center">
+                      <div class="w-24 text-sm font-medium">55+</div>
+                      <div class="flex-1 h-6 bg-gray-100 rounded overflow-hidden">
+                        <div class="h-full bg-teal-500" style="width: 10%"></div>
+                      </div>
+                      <div class="w-12 text-sm font-medium text-right">10%</div>
+                    </div>
+                  </div>
+                  
+                  <!-- Legend -->
+                  <div class="flex justify-center mt-4 border-t border-gray-100 pt-3">
+                    <div class="flex items-center">
+                      <div class="w-3 h-3 bg-teal-500 rounded-sm mr-2"></div>
+                      <span class="text-sm">Ποσοστό πελατών</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Interests Demographics Card -->
+              <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                <h4 class="text-sm font-semibold text-gray-700 mb-3">Ενδιαφέροντα πελατών</h4>
+                <div class="flex flex-col space-y-3">
+                  <div class="flex items-center">
+                    <div class="w-24 text-sm font-medium">Ηλεκτρονικά</div>
+                    <div class="flex-1 h-6 bg-gray-100 rounded overflow-hidden">
+                      <div class="h-full bg-teal-500" style="width: 28%"></div>
+                    </div>
+                    <div class="w-12 text-sm font-medium text-right">28%</div>
+                  </div>
+                  <div class="flex items-center">
+                    <div class="w-24 text-sm font-medium">Ταξίδια</div>
+                    <div class="flex-1 h-6 bg-gray-100 rounded overflow-hidden">
+                      <div class="h-full bg-blue-500" style="width: 22%"></div>
+                    </div>
+                    <div class="w-12 text-sm font-medium text-right">22%</div>
+                  </div>
+                  <div class="flex items-center">
+                    <div class="w-24 text-sm font-medium">Εστίαση</div>
+                    <div class="flex-1 h-6 bg-gray-100 rounded overflow-hidden">
+                      <div class="h-full bg-green-500" style="width: 18%"></div>
+                    </div>
+                    <div class="w-12 text-sm font-medium text-right">18%</div>
+                  </div>
+                  <div class="flex items-center">
+                    <div class="w-24 text-sm font-medium">Ένδυση</div>
+                    <div class="flex-1 h-6 bg-gray-100 rounded overflow-hidden">
+                      <div class="h-full bg-amber-700" style="width: 12%"></div>
+                    </div>
+                    <div class="w-12 text-sm font-medium text-right">12%</div>
+                  </div>
+                  <div class="flex items-center">
+                    <div class="w-24 text-sm font-medium">Άλλα</div>
+                    <div class="flex-1 h-6 bg-gray-100 rounded overflow-hidden">
+                      <div class="h-full bg-gray-500" style="width: 20%"></div>
+                    </div>
+                    <div class="w-12 text-sm font-medium text-right">20%</div>
+                  </div>
+                </div>
+                
+                <!-- Legend -->
+                <div class="flex flex-wrap gap-x-4 gap-y-2 mt-4 justify-center border-t border-gray-100 pt-3">
+                  <div class="flex items-center">
+                    <div class="w-3 h-3 bg-teal-500 rounded-sm mr-2"></div>
+                    <span class="text-sm">Ηλεκτρονικά</span>
+                  </div>
+                  <div class="flex items-center">
+                    <div class="w-3 h-3 bg-blue-500 rounded-sm mr-2"></div>
+                    <span class="text-sm">Ταξίδια</span>
+                  </div>
+                  <div class="flex items-center">
+                    <div class="w-3 h-3 bg-green-500 rounded-sm mr-2"></div>
+                    <span class="text-sm">Εστίαση</span>
+                  </div>
+                  <div class="flex items-center">
+                    <div class="w-3 h-3 bg-amber-700 rounded-sm mr-2"></div>
+                    <span class="text-sm">Ένδυση</span>
+                  </div>
+                  <div class="flex items-center">
+                    <div class="w-3 h-3 bg-gray-500 rounded-sm mr-2"></div>
+                    <span class="text-sm">Άλλα</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="text-sm text-gray-500 mt-4">
+              <p>Οι πελάτες σας ενδιαφέρονται περισσότερο για <span class="font-medium text-teal-500">ηλεκτρονικά</span> (28%) και <span class="font-medium text-blue-500">ταξίδια</span> (22%), ενώ ακολουθούν <span class="font-medium text-green-500">εστίαση</span> (18%) και <span class="font-medium text-amber-700">ένδυση</span> (12%).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Campaign Button -->
+      <div class="mt-8 text-center">
+        <button class="bg-gradient-to-r from-teal-500 to-blue-500 text-white py-3 px-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 font-medium flex items-center justify-center mx-auto">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+          </svg>
+          Σχεδίασε μια καμπάνια για πελάτες Εθνικής
+        </button>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-4 mt-8">
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col md:flex-row justify-between items-center">
+          <div class="mb-4 md:mb-0">
+            <p class="text-sm text-gray-500">© 2025 Εθνική Τράπεζα της Ελλάδος</p>
+          </div>
+          <div class="flex space-x-4">
+            <a href="#" class="text-sm text-gray-500 hover:text-gray-700">Όροι Χρήσης</a>
+            <a href="#" class="text-sm text-gray-500 hover:text-gray-700">Πολιτική Απορρήτου</a>
+            <a href="#" class="text-sm text-gray-500 hover:text-gray-700">Επικοινωνία</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
