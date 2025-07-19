@@ -288,7 +288,7 @@ Metric Components should remain as simple as possible, and should not contain an
 
 You can you use  Browser-tools MCP Server to:
 Read console and network logs.
-Take screeshots.
+Take screeshots. Screenshots will be located ~/Downloads/mcp-screenshots
 This can help you debug.
 
 ## Development
@@ -299,3 +299,12 @@ Instead, the bespoke components will create and pass mock data to the metric com
 When we need to debug, you will ask me to visit the page you want to debug.
 You add logs beforehand and you read the console and network logs from the browser-tools MCP Server.
 
+### TypeScript Note
+
+- `verbatimModuleSyntax` is enabled. Ensure import/export syntax is compatible.
+
+### Project Setup Instructions
+
+- You will provide scaffolding and bootstrapping commands (e.g. for project creation, library installation, and folder structure).
+- These commands will be executed manually by the user.
+- Consult tool Context 7 for library information
